@@ -1,12 +1,15 @@
 package com.example.ecamera2;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -36,15 +39,18 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.tabs.TabLayout;
 
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
@@ -55,9 +61,38 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+
+    public int itemPosition = 0;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);  //強制豎屏
+        iniLoadOpenCV();
+        initVIew();
+
+        /*********************模式切換*******************/
+        ArrayList<View> mPages = new ArrayList<>();
+        mPages.add(new Pager0(this));
+        mPages.add(new Pager1(this));
+        mPages.add(new Pager2(this));
+
+        ViewPager viewPager = findViewById(R.id.mViewPager);
+        TabLayout tab = findViewById(R.id.tab);
+        PagerAdapter1 myPagerAdapter = new PagerAdapter1();
+        myPagerAdapter.PagerAdapter(mPages);
+        tab.setupWithViewPager(viewPager);//將TabLayout綁定給ViewPager
+        viewPager.setAdapter(myPagerAdapter);//綁定適配器
+        viewPager.setCurrentItem(1);//指定跳到某頁，一定得設置在setAdapter後面
+        itemPosition = myPagerAdapter.currentPosition();   //未得到正確位置
+        /*********************模式切換*******************/
+    }
+
+
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
@@ -82,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SurfaceHolder iSurfaceHolder;
     /*********************開啟相簿按鈕*******************/
 
-    private ImageButton btn_selectMode;  //選擇構圖模式
+   // private ImageButton btn_selectMode;  //選擇構圖模式
     private ImageView iv_show;      //顯示已拍好的照片
     private CameraManager mCameraManager;     //攝像頭管理器
     private Handler childHandler, mainHandler;
@@ -110,19 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Paint p1 = new Paint();
     /*********************相簿畫布(canvas)*******************/
 
-
-
     private String CV_TAG = "OpenCV";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);  //強制豎屏
-        iniLoadOpenCV();
-        initVIew();
-    }
-
     private void iniLoadOpenCV() {
         boolean success = OpenCVLoader.initDebug();
         if (success) {
@@ -131,8 +154,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this.getApplicationContext(), "WARNING: Could not load OpenCV Libraries!", Toast.LENGTH_LONG).show();
         }
     }
+
     private void initVIew() {
-        btn_selectMode = (ImageButton) findViewById(R.id.btn_selectMode);
+        //btn_selectMode = (ImageButton) findViewById(R.id.btn_selectMode);
         iv_show = (ImageView) findViewById(R.id.iv_show_camera2_activity);   //拍照完顯示
         b_re = (Button) findViewById(R.id.repreview);       //回拍照畫面按鈕
         imv = (ImageView) findViewById(R.id.imgView);         //相簿點選照片顯示
@@ -234,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
-
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initCamera2() {
         HandlerThread handlerThread = new HandlerThread("Camera2");
@@ -250,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mSurfaceView.setVisibility(View.GONE);
                 bSurfaceView.setVisibility(View.GONE);
                 iSurfaceView.setVisibility(View.GONE);
-                btn_selectMode.setVisibility(View.GONE);
+                //btn_selectMode.setVisibility(View.GONE);
                 imv.setVisibility(View.GONE);
                 b_re.setVisibility(View.VISIBLE);
                 iv_show.setVisibility(View.VISIBLE);
@@ -266,9 +289,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 msg.setData(bundle);
                 childHandler.sendMessage(msg);
 
+
                 /*********************轉90度*******************/
+
+                BitmapFactory.Options bfoOptions = new BitmapFactory.Options();
+                bfoOptions.inScaled = false;
                 try {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length,bfoOptions);
 
                     Bitmap bMapRotate = null;
                     Configuration config = getResources().getConfiguration();
@@ -286,7 +313,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         bMapRotate = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),    //轉90度過後的
 
                                 matrix, true);
-
                     }
                     /*********************轉90度*******************/
 
@@ -301,9 +327,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     os.write(bytes1);
                     os.close();
                     /*********************存照片and判斷構圖分數*******************/
-
+                    Mat m = new Mat();
                     iv_show.setImageBitmap(bMapRotate);
+                    Utils.bitmapToMat(bMapRotate,m,true);
 
+                    if(itemPosition == 0){
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("YO")
+                                .setMessage("1111")
+                                .show();
+                        Pager1 i = new Pager1(MainActivity.this);
+                        i.selectMode(bMapRotate,m,selection,MainActivity.this);
+                        //selectMode(bMapRotate,m);
+                    }
                     /**************廣播****************/
                     Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                     Uri uri = Uri.fromFile(file);
@@ -338,8 +374,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
     }
-
-
     /**
      * 摄像頭創建監聽
      */
@@ -411,7 +445,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 點擊事件
      */
-    @Override
+
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.surfaceView_button:
@@ -420,22 +454,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.surfaceView_img:
                 onPick();     //開啟相簿
                 break;
-            case R.id.btn_selectMode:
-                setContentView(R.layout.menu);  //載入layout_1佈局檔案
+
         }
     }
     public void re_btn(View v){
         mSurfaceView.setVisibility(View.VISIBLE);
         bSurfaceView.setVisibility(View.VISIBLE);
         iSurfaceView.setVisibility(View.VISIBLE);
-        btn_selectMode.setVisibility(View.VISIBLE);
+        //btn_selectMode.setVisibility(View.VISIBLE);
         b_re.setVisibility(View.GONE);
         imv.setVisibility(View.GONE);
         iv_show.setVisibility(View.GONE);
 
 
     }
-
     /**
      * 拍照
      */
@@ -510,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mSurfaceView.setVisibility(View.GONE);
         bSurfaceView.setVisibility(View.GONE);
         iSurfaceView.setVisibility(View.GONE);
-        btn_selectMode.setVisibility(View.GONE);
+        //btn_selectMode.setVisibility(View.GONE);
         iv_show.setVisibility(View.GONE);
         b_re.setVisibility(View.VISIBLE);
         imv.setVisibility(View.VISIBLE);
@@ -543,11 +575,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imv.setImageBitmap(bMapRotate);
     }
 
-    public void back(View v){
+    String[] items={"強度平衡", "水平構圖","三分構圖","消失點構圖"};
+    boolean[] selection={false, false, false, false};
+    public boolean[] select(View v){
 
-        setContentView(R.layout.activity_main);
-        initVIew();
+        AlertDialog.Builder dialog=new AlertDialog.Builder(this);
+        dialog.setTitle("選擇構圖")
+
+                .setMultiChoiceItems(items, selection, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i, boolean b) {}
+                })
+
+                .setPositiveButton("確定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .show();
+        return selection;
     }
-
-
 }

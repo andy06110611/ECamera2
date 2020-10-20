@@ -2,68 +2,77 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabGravity="fill"
+        app:tabMaxWidth="0dp"
+
+        app:tabMode="auto" />
+
 
     <SurfaceView
         android:id="@+id/surface_view_camera2_activity"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/tab" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/mViewPager"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tab" />
 
     <SurfaceView
-        android:id="@+id/surfaceView_button"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignBottom="@id/surface_view_camera2_activity"
-        android:layout_centerHorizontal="true" />
+            android:id="@+id/surfaceView_button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignBottom="@id/surface_view_camera2_activity"
+            android:layout_centerHorizontal="true" />
 
-    <SurfaceView
-        android:id="@+id/surfaceView_img"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_alignBottom="@id/surface_view_camera2_activity"
-        android:layout_centerHorizontal="false"
-        android:layout_marginLeft="30dp"
-        android:layout_marginBottom="10dp" />
+        <SurfaceView
+            android:id="@+id/surfaceView_img"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_alignBottom="@id/surface_view_camera2_activity"
+            android:layout_centerHorizontal="false"
+            android:layout_marginLeft="30dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/bg_button"/>
 
     <ImageView
         android:id="@+id/iv_show_camera2_activity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:onClick="onClick"
         android:scaleType="centerCrop"
         android:visibility="gone" />
 
-    <Button
-        android:id="@+id/repreview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerInParent="false"
-        android:layout_centerHorizontal="true"
-        android:onClick="re_btn"
-        android:text="拍照"
-        android:visibility="gone" />
+        <Button
+            android:id="@+id/repreview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerInParent="false"
+            android:layout_centerHorizontal="true"
+            android:onClick="re_btn"
+            android:text="拍照"
+            android:background="@drawable/bg_button"
+            android:visibility="gone" />
 
-    <ImageView
-        android:id="@+id/imgView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:onClick="onClick"
-        android:scaleType="centerCrop"
-        android:visibility="gone" />
-
-    <ImageButton
-        android:id="@+id/btn_selectMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClick"
-        android:layout_alignRight="@id/surface_view_camera2_activity"
-        android:layout_alignBottom="@id/surface_view_camera2_activity"
-        android:layout_marginRight="30dp"
-        android:layout_marginBottom="5dp"
-        app:srcCompat="@drawable/a" />
+        <ImageView
+            android:id="@+id/imgView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:onClick="onClick"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
 
 
 </RelativeLayout>
