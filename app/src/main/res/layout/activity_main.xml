@@ -65,5 +65,10 @@
         android:layout_marginBottom="5dp"
         app:srcCompat="@drawable/a" />
 
+    <SurfaceView
+        android:id="@+id/rectSurfaceView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 
 </RelativeLayout>
