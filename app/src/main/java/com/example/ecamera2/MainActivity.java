@@ -55,6 +55,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -63,6 +64,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import com.example.ecamera2.compare;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -144,6 +146,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Canvas canvas1 = new Canvas(bitmap2);  // 畫布
     Paint p1 = new Paint();
     /*********************相簿畫布(canvas)*******************/
+
+    /*****************比對用*******************/
+    Mat currentMat= new Mat();          //目前的拍到的
+    Mat templateMat = new Mat();        //比對模板
+    Point desPoint = new Point();       //目標point
+    boolean isgood = false;
+    /*****************比對用*******************/
 
     private String CV_TAG = "OpenCV";
     private void iniLoadOpenCV() {
